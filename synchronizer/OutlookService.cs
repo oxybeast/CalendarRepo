@@ -10,8 +10,8 @@ namespace synchronizer
         private Microsoft.Office.Interop.Outlook.NameSpace mapiNamespace = null;
         private Microsoft.Office.Interop.Outlook.MAPIFolder calendarFolder = null;
         private Microsoft.Office.Interop.Outlook.Items outlookCalendarItems = null;
-
-        private void initOutlookService()
+        private DateTime maxtime;
+        private void InitOutlookService()
         {
             oApp = new Microsoft.Office.Interop.Outlook.Application();
             mapiNamespace = oApp.GetNamespace("MAPI");
@@ -21,12 +21,11 @@ namespace synchronizer
             outlookCalendarItems = calendarFolder.Items;
             outlookCalendarItems.Sort("[Start]");
             outlookCalendarItems.IncludeRecurrences = true;
-            //outlookCalendarItems
         }
         
         public void PushEvents(List<SynchronEvent> events)
         {
-            initOutlookService();
+            InitOutlookService();
             foreach (var eventToPush in events)
             {
                 var current = new Converter().ConvertSynchronToOutlook(eventToPush);
@@ -37,10 +36,12 @@ namespace synchronizer
 
         public void DeleteEvents(List<SynchronEvent> events)
         {
-            initOutlookService();
+            InitOutlookService();
 
             foreach (Microsoft.Office.Interop.Outlook.AppointmentItem item in outlookCalendarItems)
             {
+                if (item.Start > maxtime)
+                    break;
                 if (string.IsNullOrEmpty(item.Mileage))
                     continue;
                 foreach (var eventToDelete in events)
@@ -54,27 +55,16 @@ namespace synchronizer
         public List<SynchronEvent> GetAllItems(DateTime startTime, DateTime finishTime)
         {
             var resultList = new List<SynchronEvent>();
-
-            initOutlookService();
+            maxtime = finishTime;
+            InitOutlookService();
 
             foreach (Microsoft.Office.Interop.Outlook.AppointmentItem item in outlookCalendarItems)
             {
+                if (item.Start > finishTime)
+                    break;
                 if (item.IsRecurring)
                 {
                     resultList.Add(new Converter().ConvertOutlookToMyEvent(item));
-                    /*var start = item.Start;
-                    var rp = item.GetRecurrencePattern();
-                    var finish = finishTime;
-                    var oc = 0;
-                    //item.
-                    for(var cur = start; cur<=finish && ( oc < rp.Occurrences || rp.NoEndDate); cur = cur.AddDays(rp.Interval), oc++)
-                    {
-                        var curCurringSync = new Converter().ConvertOutlookToMyEvent(item);
-                        curCurringSync.SetStart(cur);
-                        curCurringSync.SetId(item.GlobalAppointmentID + oc.ToString());
-                        curCurringSync.SetFinish(cur.AddMinutes(item.Duration));
-                        resultList.Add(curCurringSync);
-                    }*/
                 }
                 else
                     resultList.Add(new Converter().ConvertOutlookToMyEvent(item));
@@ -84,10 +74,12 @@ namespace synchronizer
         }
         public void UpdateEvents(List<SynchronEvent> needToUpdate)
         {
-            initOutlookService();
+            InitOutlookService();
 
             foreach (Microsoft.Office.Interop.Outlook.AppointmentItem item in outlookCalendarItems)
             {
+                if (item.Start > maxtime)
+                    break;
                 if (string.IsNullOrEmpty(item.Mileage))
                     continue;
                 foreach (var eventToUpdate in needToUpdate)

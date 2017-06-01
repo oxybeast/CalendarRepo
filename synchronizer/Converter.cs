@@ -139,7 +139,8 @@ namespace synchronizer
                 .SetId(googleEvent.Id)
                 .SetPlacement(_google);
             
-            if (googleEvent.ExtendedProperties != null)
+            if (googleEvent.ExtendedProperties != null && googleEvent.ExtendedProperties.Shared != null 
+                && googleEvent.ExtendedProperties.Shared.ContainsKey(_outlook))
             {
                 result.SetId(googleEvent.ExtendedProperties.Shared[_outlook]);
                 result.SetSource(_outlook);
