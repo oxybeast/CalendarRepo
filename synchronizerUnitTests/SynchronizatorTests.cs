@@ -25,6 +25,11 @@ namespace synchronizerUnitTests
                 && calendarB.GetAllItems(startData, finishDate).Count == 0);
         }
         [Fact]
+        public void badTest()
+        {
+            Assert.True(false);
+        }
+        [Fact]
         public void TwoCalendarsOneNonEmpty_AddedToNext1()
         {
             var synchronizer = new Syncronizator();

@@ -45,7 +45,7 @@ namespace synchronizer
         
         public void PushEvents(List<SynchronEvent> events)
         {
-            //InitOutlookService();
+            InitOutlookService();
             foreach (var eventToPush in events)
             {
                 var current = new Converter().ConvertSynchronToOutlook(eventToPush);
@@ -56,7 +56,7 @@ namespace synchronizer
 
         public void DeleteEvents(List<SynchronEvent> events)
         {
-            //InitOutlookService();
+            InitOutlookService();
 
             foreach (Microsoft.Office.Interop.Outlook.AppointmentItem item in outlookCalendarItems)
             {
@@ -101,7 +101,7 @@ namespace synchronizer
         }
         public void UpdateEvents(List<SynchronEvent> needToUpdate)
         {
-            //InitOutlookService();
+            InitOutlookService();
 
             foreach (Microsoft.Office.Interop.Outlook.AppointmentItem item in outlookCalendarItems)
             {
